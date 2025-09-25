@@ -1,0 +1,22 @@
+*{
+    font-family: inter;
+}
+.login--{
+    background: #efffec;
+
+}
+.login-form{
+    background: #102D0B;
+}
+.greeting{
+    color: #D4FFCD;
+}
+
+.login-button{
+    background: #D4FFCD;
+    color: #102D0B;
+    cursor: pointer;
+}
+.login-button:hover{
+    background: #b2ffa5;
+}

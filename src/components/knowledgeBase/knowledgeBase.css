@@ -1,0 +1,70 @@
+.banner- {
+    height: 310px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 32px;
+}
+
+.img-carausel {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+}
+
+.img-carausel img {
+    height: 100px;
+    width: 100%;
+
+
+}
+.file-content img{
+    height: 150px;
+}
+
+.content-section-heading {
+    color: #D4FFCD;
+    text-align: center;
+    font-family: Inter;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 30px;
+    margin: 8px 6px;
+    letter-spacing: 0.18px;
+}
+
+.content-section-para {
+    color: #EFFFEC;
+    text-align: center;
+    font-family: Inter;
+    font-size: 16px;
+    padding: 10px 60px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.12px;
+}
+
+.btn-4 {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.btnn {
+    color: #102D0B;
+    background: #D4FFCD;
+    border-radius: 32px;
+    /* 2XL/Semi Bold */
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 32px;
+    /* 133.333% */
+    letter-spacing: 0.12px;
+    padding: 10px 20px;
+}
