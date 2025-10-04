@@ -121,7 +121,7 @@
     left: 130px;
     width: 150px;   /* set desired width */
     height: 30px;  /* set desired height */
-    background-image: url('../../../public/Arc-3.png');
+    background-image: url('../../../Arc-3.png');
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -134,7 +134,7 @@
     left: 130px;
     width: 150px;   /* set desired width */
     height: 30px;  /* set desired height */
-    background-image: url('../../../public/Arc-1.png');
+    background-image: url('../../../Arc-1.png');
     background-size: contain;
     background-repeat: no-repeat;
 }

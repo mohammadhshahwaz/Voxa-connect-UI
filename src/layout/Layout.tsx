@@ -1,27 +1,36 @@
-import { useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
-import Home from "../pages/Home/Home";
-import Conversation from "../components/conversation/Conversation";
-import KnowledgeBase from "../components/knowledgeBase/KnowledgeBase";
-
-type PageType = "home" | "conversations" | "knowledge";
+import Loader from "../loader/loader";
 
 const Layout = () => {
-  const [activePage, setActivePage] = useState<PageType>("home");
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setLoading(true);
+
+    // Simulate component loading (replace with real API/image load later)
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [location]);
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar with fixed width */}
-      <Sidebar
-        activePage={activePage}
-        setActivePage={setActivePage}
-      />
+      {/* Sidebar stays visible */}
+      <Sidebar />
 
-      {/* Main content area with vertical scroll if content is too long */}
-      <main className="flex-1 bg-[#efffec] overflow-auto">
-        {activePage === "home" && <Home />}
-        {activePage === "conversations" && <Conversation />}
-        {activePage === "knowledge" && <KnowledgeBase />}
+      {/* Main content area */}
+      <main className="flex-1 bg-[#efffec] overflow-auto flex items-center justify-center">
+        {loading ? (
+          // Loader only in right section
+          <Loader />
+        ) : (
+          <Outlet />
+        )}
       </main>
     </div>
   );

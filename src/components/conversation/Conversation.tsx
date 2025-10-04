@@ -1,69 +1,219 @@
-import { useState } from "react";
-import { Send } from "lucide-react";
-import './conversation.css';
+// import { useState } from "react";
+// import "./conversation.css";
+// import InputBox from "../inputbox/inputBox";
+import FormatResponse from "../../hooks/formatResponse";
 
-const Conversation = () => {
-  const [messages,] = useState([
-    {
-      sender: "user",
-      text: "Hey Lina, can you give me a quick recap of yesterday's design review? I only caught the last five minutes.",
-    },
-    {
-      sender: "ai",
-      text: "Sure! The team finalized the new color scheme, agreed on font choices, and pushed the mobile layout to next sprint.",
-    },
-    {
-      sender: "user",
-      text: "That's great. What were the pending items from that meeting? Anything critical I should keep an eye on today?",
-    },
-    {
-      sender: "ai",
-      text: "Yes. You need to refine the onboarding flow screens, test the button states, and schedule a usability review session.",
-    },
+// const Conversation = () => {
+//   const [messages] = useState([
+//     {
+//       sender: "user",
+//       text: "Hey Rafik, can you give me a quick recap of yesterday's design review? I only caught the last five minutes.",
+//     },
+//     {
+//       sender: "ai",
+//       text: "Sure! The team finalized the new color scheme, agreed on font choices, and pushed the mobile layout to next sprint.",
+//     },
+//     {
+//       sender: "user",
+//       text: "That's great. What were the pending items from that meeting? Anything critical I should keep an eye on today?",
+//     },
+//     {
+//       sender: "ai",
+//       text: "Yes. You need to refine the onboarding flow screens, test the button states, and schedule a usability review session.",
+//     },
+//   ]);
+
+//   return (
+//     <div className="w-full h-screen bg-[#efffec] flex flex-col">
+//       {/* Header */}
+//       <div className="text-center conversation border-b flex-shrink-0">
+//         <h1 className="conversation-heading">VoxoConnect AI Assistant</h1>
+//         <p className="conversation-para">
+//           Ask questions about your company information
+//         </p>
+//       </div>
+
+//       {/* Chat Messages */}
+//       <div className="flex-1 overflow-y-auto p-6 flex flex-col-reverse space-y-4 space-y-reverse">
+//         {[...messages].reverse().map((msg, i) => (
+//           <div
+//             key={i}
+//             className={`flex items-start gap-3 ${
+//               msg.sender === "user" ? "flex-row-reverse" : "flex-row"
+//             } chat-box`}
+//           >
+//             {/* Avatar */}
+//             <img
+//               src={msg.sender === "user" ? "/Rectangle 34.png" : "/ai-20.png"}
+//               alt={msg.sender}
+//               className="w-8 h-8 rounded-full object-cover"
+//             />
+
+//             {/* Message */}
+//             <div
+//               className={`p-3 rounded-lg max-w-lg ${
+//                 msg.sender === "user"
+//                   ? "bg-white border-r-4 border-r-[#102d0b]"
+//                   : "bg-white border-l-4 border-l-[#102d0b]"
+//               } user-`}
+//             >
+//               <p className="text-sm text-gray-800">{msg.text}</p>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+
+//       {/* Input Box */}
+//       <div className="flex-shrink-0  bg-[#efffec] ">
+//         <InputBox />
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Conversation;
+
+import { useState } from "react";
+import "./conversation.css";
+import InputBox from "../inputbox/inputBox";
+import type { Message, MessagePayload } from "../../types/types";
+
+const Conversation: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    { sender: "user", text: "Hey Rafik, can you give me a quick recap?" },
+    { sender: "ai", text: "Sure! The team finalized the new color scheme...", done: true },
   ]);
+
+  const handleMessageSent = ({ userMessage, aiResponse, files, response, doneMessageId }: MessagePayload) => {
+    const newMessages: Message[] = [];
+
+    if (userMessage) {
+      newMessages.push({
+        sender: "user",
+        text: userMessage,
+        files: files || null,
+      });
+    }
+
+    if (response) {
+      // Append streaming chunk content with de-duplication by chunk_id
+      setMessages((prev) => {
+        const lastAi = [...prev].reverse().find((m) => m.sender === "ai");
+
+        if (lastAi && lastAi.message_id === response.message_id) {
+          // If we've already processed this chunk_id, ignore duplicate
+          if (lastAi.chunk_id === response.chunk_id) {
+            return prev;
+          }
+          // Support both cumulative and delta streaming formats
+          return prev.map((m) => {
+            if (m.message_id !== response.message_id) return m;
+            const existing = m.text || "";
+            const incoming = response.content || "";
+            const nextText = incoming.startsWith(existing)
+              ? incoming // cumulative full text from server
+              : (existing + (existing ? " " : "") + incoming).trim(); // delta append
+            return {
+              ...m,
+              text: nextText,
+              chunk_id: response.chunk_id,
+              metadata: response.metadata,
+              done: m.done ?? false,
+            };
+          });
+        } else {
+          // First chunk of a new AI message
+          return [
+            ...prev,
+            {
+              sender: "ai",
+              text: response.content,
+              message_id: response.message_id,
+              chunk_id: response.chunk_id,
+              metadata: response.metadata,
+              done: false,
+            },
+          ];
+        }
+      });
+      return;
+    }
+
+    // Mark a message as completed when done signal is received
+    if (doneMessageId) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.message_id === doneMessageId ? { ...m, done: true } : m
+        )
+      );
+      return;
+    }
+
+    if (aiResponse) {
+      newMessages.push({
+        sender: "ai",
+        text: aiResponse,
+        done: true,
+      });
+    }
+
+    setMessages((prev) => [...prev, ...newMessages]);
+  };
+
   return (
-    <div className="w-full min-h-screen bg-[#efffec] flex flex-col">
+    <div className="w-full h-screen bg-[#efffec] flex flex-col">
       {/* Header */}
-      <div className="p-4 text-center conversation border-b">
+      <div className="text-center conversation border-b flex-shrink-0">
         <h1 className="conversation-heading">VoxoConnect AI Assistant</h1>
-        <p className="conversation-para ">
+        <p className="conversation-para">
           Ask questions about your company information
         </p>
       </div>
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.map((msg, i) => (
+
+      {/* Chat messages */}
+      <div className="flex-1 overflow-y-auto p-6 flex flex-col-reverse space-y-4 space-y-reverse">
+        {[...messages].reverse().map((msg, i) => (
           <div
             key={i}
             className={`flex items-start gap-3 ${
               msg.sender === "user" ? "flex-row-reverse" : "flex-row"
-            }`}
+            } chat-box`}
           >
-            <div className="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0"></div>
+            <img
+              src={msg.sender === "user" ? "/Rectangle 34.png" : "/ai-20.png"}
+              alt={msg.sender}
+              className="w-8 h-8 rounded-full object-cover"
+            />
             <div
-              className={`p-3 rounded-xl max-w-lg ${
+              className={`p-3 rounded-lg max-w-lg ${
                 msg.sender === "user"
-                  ? "bg-white border border-gray-200 shadow-sm"
-                  : "bg-white border border-gray-200 shadow-sm"
+                  ? "bg-white border-r-4 border-r-[#102d0b]"
+                  : "bg-white border-l-4 border-l-[#102d0b]"
               }`}
             >
-              <p className="text-sm text-gray-800">{msg.text}</p>
+              {msg.sender === "ai" ? (
+                <div className="text-sm text-gray-800 flex items-start gap-2">
+                  <div className="flex-1"><FormatResponse text={msg.text} /></div>
+                  {!msg.done && (
+                    <div className="w-4 h-4 mt-0.5 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#102D0B]"></div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-800">{msg.text}</p>
+              )}
             </div>
           </div>
         ))}
       </div>
+
       {/* Input Box */}
-      <div className="p-4 border-t border-gray-200 flex items-center gap-2">
-        <input
-          type="text"
-          placeholder="Type a new message here"
-          className="flex-1 px-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
-        />
-        <button className="p-2 bg-[#d9fdd3] rounded-full">
-          <Send size={18} className="text-gray-700" />
-        </button>
+      <div className="flex-shrink-0 bg-[#efffec]">
+        <InputBox onMessageSent={handleMessageSent} />
       </div>
     </div>
   );
 };
-export default Conversation
+
+export default Conversation;
