@@ -22,15 +22,15 @@ const KnowledgeBase = () => {
     return (
         <div className=' w-full min-h-screen '>
             <div className="logo p-6">
-                <div className="banner- py-6 pb-3 bg-[#102D0B]  text-[#d3ffcd]">
+                <div className="banner- py-6 pb-3 bg-[var(--color-primary-dark)]  text-[var(--color-primary)]">
                     <div className="img-carausel">
-                        <img src="./banner-img-1.png" alt="" />
-                        <img src="./banner-img-2.png" alt="" />
-                        <img src="./banner-img-3.png" alt="" />
-                        <img src="./banner-img-4.png" alt="" />
-                        <img src="./banner-img-5.png" alt="" />
-                        <img src="./banner-img-6.png" alt="" />
-                        <img src="./banner-img-7.png" alt="" />
+                        <img src="./Rectangle 12.png" alt="" />
+                        <img src="./Rectangle 18.png" alt="" />
+                        <img src="./Rectangle 17.png" alt="" />
+                        <img src="./Rectangle 15.png" alt="" />
+                        <img src="./Rectangle 16.png" alt="" />
+                        <img src="./Rectangle 17.png" alt="" />
+                        <img src="./Rectangle 18.png" alt="" />
                     </div>
                     <div className="content-section-kn">
                         <h2 className='content-section-heading'>Enhance AI with Your Documents</h2>
@@ -60,7 +60,7 @@ const KnowledgeBase = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
                     {/* File Card - Waiting for Approval */}
-                    <div className="file-card relative bg-[#D4FFCD] p-4 rounded-xl shadow">
+                    <div className="file-card relative bg-[var(--color-primary)] p-4 rounded-xl shadow">
                         <ApprovedLoader />
                         {/* icon */}
                         <FontAwesomeIcon
@@ -75,7 +75,7 @@ const KnowledgeBase = () => {
                     </div>
 
                     {/* File Card - Pricing Guide */}
-                    <div className="file-card relative bg-[#D4FFCD] p-4 rounded-xl shadow">
+                    <div className="file-card relative bg-[var(--color-primary)] p-4 rounded-xl shadow">
                         {/* icon */}
                         <FontAwesomeIcon
                             icon={faTimes}
@@ -90,7 +90,7 @@ const KnowledgeBase = () => {
                     </div>
 
                     {/* File Card - Product Overview */}
-                    <div className="file-card relative bg-[#D4FFCD] p-4 rounded-xl shadow">
+                    <div className="file-card relative bg-[var(--color-primary)] p-4 rounded-xl shadow">
                         {/* icon */}
                         <FontAwesomeIcon
                             icon={faTimes}

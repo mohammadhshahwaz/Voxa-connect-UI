@@ -2,3 +2,16 @@
 body,html{
     font-family: Inter;
 }
+
+:root {
+  --color-primary-dark: #2B303F;
+  --color-primary: #E3EAFF;
+  --color-neutral-dark: #423D3D;
+  --color-neutral-light: #E3EAFF;
+  --color-bg-light: #F1F5FF;
+  --color-line: #E3EAFF;
+  --bg-dark-hover:#464d64;
+  --text-dark-hover:#E4E5FF;
+  --text-white:#ffffff;
+  --bg-white:#ffffff;
+}

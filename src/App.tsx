@@ -7,6 +7,9 @@ import Home from "./pages/Home/Home";
 import Conversation from "./components/conversation/Conversation";
 import KnowledgeBase from "./components/knowledgeBase/KnowledgeBase";
 import CallDemoOptions from "./components/callDemoOptions/CallDemoOptions";
+import Signup from "./pages/signup/signup";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import ChatHistory from "./components/chatHistory/chatHistory";
 
 function App() {
   return (
@@ -16,14 +19,20 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
 
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-        {/* All routes with sidebar go inside Layout */}
-        <Route path="/" element={<Layout />}>
+        {/* Protected routes with sidebar go inside Layout */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
           <Route path="home" element={<Home />} />
           <Route path="conversations" element={<Conversation />} />
           <Route path="knowledge" element={<KnowledgeBase />} />
           <Route path="calldemo" element={<CallDemoScreen />} />
           <Route path="calldemooptions" element={<CallDemoOptions />} />
+          <Route path="/chat-history" element={<ChatHistory/>} />
         </Route>
 
         {/* Optional: 404 page */}

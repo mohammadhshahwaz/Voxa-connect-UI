@@ -11,13 +11,13 @@ export const conversationModes: ConversationMode[] = [
   {
     id: "video",
     name: "Video Call",
-    img: "./video-call.png",
+    img: "./frame-2.png",
     type: "button",
   },
   {
     id: "text",
     name: "Text Chat",
-    img: "./text-chat.png",
+    img: "./frame-1.png",
     type: "link",
     route: "/conversations",
     state: { selectedAvatar: "" }, 

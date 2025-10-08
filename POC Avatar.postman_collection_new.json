@@ -1,0 +1,658 @@
+{
+	"info": {
+		"_postman_id": "5a76d70a-b9e1-4836-b4ba-b5af4d308a80",
+		"name": "POC Avatar",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26397679"
+	},
+	"item": [
+		{
+			"name": "Upload context",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/narayanaswamy/Downloads/balnk.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}}/dependencies/upload_context",
+					"host": [
+						"{{base_url}}}"
+					],
+					"path": [
+						"dependencies",
+						"upload_context"
+					],
+					"query": [
+						{
+							"key": "file",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "UploadContext",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/narayanaswamy/Downloads/balnk.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/dependencies/upload_context",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dependencies",
+								"upload_context"
+							],
+							"query": [
+								{
+									"key": "file",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "date",
+							"value": "Tue, 07 Oct 2025 11:50:02 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "137"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\n    \"meta\": {\n        \"endpoint_name\": \"upload_context\",\n        \"time\": \"\"\n    },\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"Context upload successful\",\n    \"response_time\": 0.0037703514099121094\n}"
+				}
+			]
+		},
+		{
+			"name": "RegisterUser",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"testuser1234\", \n    \"password\":\"Qwerty1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/register_user",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"register_user"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "RegisterUser",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"testuser123\", \n    \"password\":\"Qwerty1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/register_user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"register_user"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "date",
+							"value": "Tue, 07 Oct 2025 19:18:56 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "170"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"meta\": {\n        \"time\": \"08-10-2025::00:48:57\",\n        \"endpoint_name\": \"/register_user\",\n        \"status_code\": 200,\n        \"success\": 1\n    },\n    \"user_id\": \"\",\n    \"api_key\": \"\",\n    \"message\": \"User successfully registered\"\n}"
+				},
+				{
+					"name": "RegisterUserConflict",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"testuser1234\", \n    \"password\":\"Qwerty1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/register_user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"register_user"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "date",
+							"value": "Wed, 08 Oct 2025 04:43:48 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "180"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"meta\": {\n        \"time\": \"08-10-2025::04:43:48\",\n        \"endpoint_name\": \"/register_user\",\n        \"status_code\": 409,\n        \"success\": 1\n    },\n    \"user_id\": \"\",\n    \"api_key\": \"\",\n    \"message\": \"Username testuser1234 already exists !\"\n}"
+				}
+			]
+		},
+		{
+			"name": "ListUsers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"testuser123\", \n    \"password\":\"Qwerty1234\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/list_users?offset=0&limit=100",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"list_users"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "ListUser",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"testuser123\", \n    \"password\":\"Qwerty1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/list_users?offset=0&limit=100",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"list_users"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "date",
+							"value": "Tue, 07 Oct 2025 19:29:56 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "176"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"meta\": {\n        \"time\": \"08-10-2025::00:59:57\",\n        \"endpoint_name\": \"/list_users\",\n        \"status_code\": 200,\n        \"success\": 1\n    },\n    \"users\": [\n        \"123feb61-e8aa-4b46-8679-59f1e857b75c\"\n    ],\n    \"remaining\": 0,\n    \"message\": \"\"\n}"
+				}
+			]
+		},
+		{
+			"name": "ListMessages",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\":\"123feb61-e8aa-4b46-8679-59f1e857b75c\", \n    \"session_id\":\"a890ddb8-f6f0-4966-ae0b-a2ef400995df\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/list_messages?offset=0&limit=100",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"list_messages"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "ListMessages",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\":\"123feb61-e8aa-4b46-8679-59f1e857b75c\", \n    \"session_id\":\"a890ddb8-f6f0-4966-ae0b-a2ef400995df\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/list_messages?offset=0&limit=100",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"list_messages"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "date",
+							"value": "Wed, 08 Oct 2025 04:01:40 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "1514"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"meta\": {\n        \"time\": \"08-10-2025::09:31:40\",\n        \"endpoint_name\": \"/list_messages\",\n        \"status_code\": 200,\n        \"success\": 1\n    },\n    \"user_id\": \"123feb61-e8aa-4b46-8679-59f1e857b75c\",\n    \"session_id\": \"a890ddb8-f6f0-4966-ae0b-a2ef400995df\",\n    \"message_results\": [\n        {\n            \"role\": \"user\",\n            \"content\": \"What is the inactivity threshold ?\",\n            \"message_id\": \"f5541676-f969-49e3-85de-1fb2a92a9864\",\n            \"num_chunks\": 1,\n            \"stream\": false,\n            \"session_id\": \"a890ddb8-f6f0-4966-ae0b-a2ef400995df\",\n            \"order\": 1\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"I'd be happy to help you find information about the inactivity threshold in Voxa Connect. Let me search for that specific information for you.According to the Voxa Connect documentation, the inactivity threshold is set at 6 hours. After this period of inactivity, users are automatically logged out of the dropboard system.\\n\\nHere's what happens with this inactivity threshold:\\n- If you're inactive for 6 hours, the system will automatically log you out\\n- After being logged out, you'll need to sign in again for each open browser tab\\n- When you sign back in, each tab will maintain the last visited page (schedule, datatable, report, etc.)\\n- Manual logout is generally unnecessary because of this automatic timeout feature, but you can still use the logout button in the menu if needed\\n\\nIs there anything specific about the inactivity threshold you'd like to know more about?\",\n            \"message_id\": \"f5541676-f969-49e3-85de-1fb2a92a9864\",\n            \"num_chunks\": 28,\n            \"stream\": true,\n            \"session_id\": \"a890ddb8-f6f0-4966-ae0b-a2ef400995df\",\n            \"order\": 2\n        }\n    ],\n    \"remaining\": 0,\n    \"message\": \"\"\n}"
+				}
+			]
+		},
+		{
+			"name": "ListSessions",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\":\"123feb61-e8aa-4b46-8679-59f1e857b75c\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8003/api/v1/list_sessions?offset=0&limit=100",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8003",
+					"path": [
+						"api",
+						"v1",
+						"list_sessions"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "ListSessions",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\":\"123feb61-e8aa-4b46-8679-59f1e857b75c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8003/api/v1/list_sessions?offset=0&limit=100",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8003",
+							"path": [
+								"api",
+								"v1",
+								"list_sessions"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "date",
+							"value": "Wed, 08 Oct 2025 04:03:31 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "231"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"meta\": {\n        \"time\": \"08-10-2025::09:33:31\",\n        \"endpoint_name\": \"/list_sessions\",\n        \"status_code\": 200,\n        \"success\": 1\n    },\n    \"user_id\": \"123feb61-e8aa-4b46-8679-59f1e857b75c\",\n    \"remaining\": 0,\n    \"sessions\": [\n        \"a890ddb8-f6f0-4966-ae0b-a2ef400995df\"\n    ],\n    \"message\": \"\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"testuser123\", \n    \"password\":\"Qwerty1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8003/api/v1/login",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8003",
+					"path": [
+						"api",
+						"v1",
+						"login"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Login",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"testuser123\", \n    \"password\":\"Qwerty1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8003/api/v1/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8003",
+							"path": [
+								"api",
+								"v1",
+								"login"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "date",
+							"value": "Wed, 08 Oct 2025 04:10:22 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "186"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"meta\": {\n        \"time\": \"08-10-2025::09:40:23\",\n        \"endpoint_name\": \"/login\",\n        \"status_code\": 200,\n        \"success\": 1\n    },\n    \"user_id\": \"123feb61-e8aa-4b46-8679-59f1e857b75c\",\n    \"api_key\": \"\",\n    \"message\": \"\",\n    \"is_valid\": true\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "",
+			"type": "default"
+		}
+	]
+}

@@ -20,7 +20,7 @@
 }
 
 .f-section-heading h1 {
-    color: #D4FFCD;
+    color: var(--color-primary);
     text-align: center;
     font-family: Inter;
     font-size: 36px;
@@ -32,7 +32,7 @@
 }
 
 .f-section-para p {
-    color: #EFFFEC;
+    color: var(--text-white);
     text-align: center;
     font-family: Inter;
     font-size: 24px;
@@ -147,7 +147,7 @@
     left: 130px;
     width: 150px;   /* set desired width */
     height: 30px;  /* set desired height */
-    background-image: url('../../../public/Arc-3.png');
+    background-image: url('../../../Arc-3.png');
     background-size: contain;
     background-repeat: no-repeat;
 }

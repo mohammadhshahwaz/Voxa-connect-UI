@@ -1,8 +1,8 @@
 const ApprovedLoader = () => {
     return (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#d4ffcd]/90 rounded-xl z-20">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#E4E5FF]/90 rounded-xl z-20">
             <img
-                src="./Lines.png"
+                src="./Default.png"
                 alt="approval-loader"
                 className="w-24 h-24 object-contain "
             />

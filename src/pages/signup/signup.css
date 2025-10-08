@@ -1,9 +1,8 @@
-.login-- {
+.signup-- {
     background: var(--color-bg-light);
-    color: var(--color-primary);
 }
 
-.login-form {
+.signup-form {
     background: var(--color-primary-dark);
 }
 
@@ -11,12 +10,12 @@
     color: var(--color-primary);
 }
 
-.login-button {
+.signup-button {
     background: var(--color-primary);
     color: var(--color-primary-dark);
     cursor: pointer;
 }
 
-.login-button:hover {
-    background: #ddc3ff; /* You can also define a new variable for hover if needed */
+.signup-button:hover {
+    background: #b2ffa5; /* match login hover */
 }

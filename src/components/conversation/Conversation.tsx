@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import "./conversation.css";
 import InputBox from "../inputbox/inputBox";
@@ -7,11 +6,20 @@ import type { Message, MessagePayload } from "../../types/types";
 
 const Conversation: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
-    { sender: "user", text: "Hey Rafik, can you give me a quick recap?" },
-    { sender: "ai", text: "Sure! The team finalized the new color scheme...", done: true },
+    {
+      sender: "ai",
+      text: "👋 Hi, I’m Rafik. Here to help you with anything you need. What can I do for you today?",
+      done: true,
+    },
   ]);
 
-  const handleMessageSent = ({ userMessage, aiResponse, files, response, doneMessageId }: MessagePayload) => {
+  const handleMessageSent = ({
+    userMessage,
+    aiResponse,
+    files,
+    response,
+    doneMessageId,
+  }: MessagePayload) => {
     const newMessages: Message[] = [];
 
     if (userMessage) {
@@ -23,23 +31,19 @@ const Conversation: React.FC = () => {
     }
 
     if (response) {
-      // Append streaming chunk content with de-duplication by chunk_id
       setMessages((prev) => {
         const lastAi = [...prev].reverse().find((m) => m.sender === "ai");
 
         if (lastAi && lastAi.message_id === response.message_id) {
-          // If we've already processed this chunk_id, ignore duplicate
-          if (lastAi.chunk_id === response.chunk_id) {
-            return prev;
-          }
-          // Support both cumulative and delta streaming formats
+          if (lastAi.chunk_id === response.chunk_id) return prev;
+
           return prev.map((m) => {
             if (m.message_id !== response.message_id) return m;
             const existing = m.text || "";
             const incoming = response.content || "";
             const nextText = incoming.startsWith(existing)
-              ? incoming // cumulative full text from server
-              : (existing + (existing ? " " : "") + incoming).trim(); // delta append
+              ? incoming
+              : (existing + incoming).trim();
             return {
               ...m,
               text: nextText,
@@ -49,7 +53,6 @@ const Conversation: React.FC = () => {
             };
           });
         } else {
-          // First chunk of a new AI message
           return [
             ...prev,
             {
@@ -66,7 +69,6 @@ const Conversation: React.FC = () => {
       return;
     }
 
-    // Mark a message as completed when done signal is received
     if (doneMessageId) {
       setMessages((prev) =>
         prev.map((m) =>
@@ -88,13 +90,20 @@ const Conversation: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-[#efffec] flex flex-col">
+    <div className="w-full h-screen bg-[var(--color-bg-light-sec)] flex flex-col">
       {/* Header */}
-      <div className="text-center conversation border-b flex-shrink-0">
-        <h1 className="conversation-heading">VoxoConnect AI Assistant</h1>
-        <p className="conversation-para">
+      <div className="  flex flex-row conversation border-b border-[var(--color-line-dark)] flex-shrink-0 bg-[var(--color-bg-light)]">
+        <h1 className="conversation-heading text-[var(--color-primary-dark)] font-bold text-lg">
+          VoxaConnect AI Assistant
+        </h1>
+        {/* <p className="conversation-para text-[var(--color-neutral-dark)] text-sm">
           Ask questions about your company information
-        </p>
+        </p> */}
+        <div className="chat-history text-end ">
+          <a className=" border rounded p-2 hover:bg-[var(--color-primary-dark)] hover:text-[var(--color-primary)]" href="/chat-history">
+          Chat History
+          </a>
+        </div>
       </div>
 
       {/* Chat messages */}
@@ -112,23 +121,25 @@ const Conversation: React.FC = () => {
               className="w-8 h-8 rounded-full object-cover"
             />
             <div
-              className={`p-3 rounded-lg max-w-lg ${
+              className={`p-3 rounded-lg max-w-lg text-sm ${
                 msg.sender === "user"
-                  ? "bg-white border-r-4 border-r-[#102d0b]"
-                  : "bg-white border-l-4 border-l-[#102d0b]"
-              }`}
+                  ? "bg-[var(--bg-white)] border-r-4 border-[var(--color-primary-dark)]"
+                  : "bg-[var(--bg-white)] border-l-4 border-[var(--color-primary-dark)]"
+              } user-` }
             >
               {msg.sender === "ai" ? (
-                <div className="text-sm text-gray-800 flex items-start gap-2">
-                  <div className="flex-1"><FormatResponse text={msg.text} /></div>
+                <div className="text-[var(--color-neutral-dark)] flex items-start gap-2">
+                  <div className="flex-1">
+                    <FormatResponse text={msg.text} />
+                  </div>
                   {!msg.done && (
                     <div className="w-4 h-4 mt-0.5 flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#102D0B]"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[var(--color-primary-dark)]"></div>
                     </div>
                   )}
                 </div>
               ) : (
-                <p className="text-sm text-gray-800">{msg.text}</p>
+                <p className="text-[var(--color-neutral-dark)]">{msg.text}</p>
               )}
             </div>
           </div>
@@ -136,7 +147,7 @@ const Conversation: React.FC = () => {
       </div>
 
       {/* Input Box */}
-      <div className="flex-shrink-0 bg-[#efffec]">
+      <div className="flex-shrink-0 bg-[var(--color-bg-light)]">
         <InputBox onMessageSent={handleMessageSent} />
       </div>
     </div>

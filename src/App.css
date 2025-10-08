@@ -1,5 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Naskh+Arabic:wght@400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400..700&family=Noto+Sans+Devanagari:wght@100..900&display=swap');
 *{
     box-sizing: border-box;
     font-family:inter;
 }
+:root {
+  --color-primary-dark: #2B303F;
+  --color-primary: #E3EAFF;
+  --color-neutral-dark: #423D3D;
+  --color-neutral-light: #E3EAFF;
+  --color-bg-light: #F1F5FF;
+  --color-line: #E3EAFF;
+  --color-line-dark: #464d64;
+  --bg-dark-hover:#464d64;
+  --text-dark-hover:#E4E5FF;
+  --text-white:#ffffff;
+  --bg-white:#ffffff;
+}
+
+
+/* Language-aware font helpers */
+.font-arabic {
+  font-family: 'Noto Naskh Arabic', Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.font-urdu {
+  font-family: 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.font-devanagari {
+  font-family: 'Noto Sans Devanagari', Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* Also honor lang attribute if present */
+[lang="ar"], [lang^="ar-"] { font-family: 'Noto Naskh Arabic', Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+[lang="ur"], [lang^="ur-"] { font-family: 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+[lang="hi"], [lang^="hi-"] { font-family: 'Noto Sans Devanagari', Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }

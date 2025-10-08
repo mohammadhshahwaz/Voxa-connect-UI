@@ -24,7 +24,7 @@ const Layout = () => {
       <Sidebar />
 
       {/* Main content area */}
-      <main className="flex-1 bg-[#efffec] overflow-auto flex items-center justify-center">
+      <main className="flex-1 bg-[var(--color-bg-light)] overflow-auto flex items-center justify-center">
         {loading ? (
           // Loader only in right section
           <Loader />
