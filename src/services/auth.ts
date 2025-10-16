@@ -57,6 +57,7 @@ export interface LoginResponse {
   is_valid?: boolean;
 }
 
+
 export interface RegisterResponse {
   meta?: any;
   user_id?: string;
@@ -76,6 +77,7 @@ export async function login(username: string, password: string) {
     body: JSON.stringify({ username, password }),
   });
 }
+
 
 export async function register(username: string, password: string) {
   return request<RegisterResponse>("/api/v1/register_user", {
@@ -103,3 +105,4 @@ export function getPersistedAuth<T = PersistedAuth>() {
     return null;
   }
 }
+

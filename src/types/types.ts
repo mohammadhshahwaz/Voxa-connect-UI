@@ -41,3 +41,13 @@ export interface MessagePayload {
   response?: ChatResponse;
   doneMessageId?: string; // signal that streaming is finished for this message_id
 }
+
+export interface GenerateToken{
+  service_name?:string;
+  name?:string;
+  api_key?:string;
+  api_secret?:string;
+  token?:string;
+  room_name?:string;
+  message?:string;
+}

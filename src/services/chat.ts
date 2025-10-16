@@ -1,6 +1,3 @@
-// Chat-related API client: list sessions and list messages
-// Uses the same base URL strategy as auth, with robust error handling and timeouts
-
 const DEFAULT_BASE_URL = "http://98.90.206.21:8003";
 
 function getBaseUrl(): string {

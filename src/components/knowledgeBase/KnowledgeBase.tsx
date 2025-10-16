@@ -2,20 +2,36 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import './knowledgeBase.css'
 import { faCloudArrowUp, faTimes } from "@fortawesome/free-solid-svg-icons";
 import ApprovedLoader from "../approvedLoader/approvedLoader";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { uploadContext } from "../../services/upload";
 
 const KnowledgeBase = () => {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadResult, setUploadResult] = useState<string | null>(null);
 
     const handleButtonClick = () => {
         fileInputRef.current?.click();
     };
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
-        if (files && files.length > 0) {
-            console.log("Selected files:", files);
-           
+        if (!files || files.length === 0) return;
+        setIsUploading(true);
+        setUploadResult(null);
+        try {
+            const list = Array.from(files);
+            let ok = 0, fail = 0;
+            for (const f of list) {
+                const res = await uploadContext(f);
+                if (res.ok) ok++; else fail++;
+            }
+            setUploadResult(`Uploaded ${ok} file(s)${fail ? `, ${fail} failed` : ''}.`);
+        } catch (e: any) {
+            setUploadResult(e?.message || 'Upload failed');
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
         }
     };
 
@@ -50,6 +66,12 @@ const KnowledgeBase = () => {
                                 onChange={handleFileChange}
                                 multiple
                             />
+                            {isUploading && (
+                                <div className="mt-2 text-sm" style={{ color: 'var(--color-primary)' }}>Uploading…</div>
+                            )}
+                            {uploadResult && !isUploading && (
+                                <div className="mt-2 text-sm" style={{ color: 'var(--color-primary)' }}>{uploadResult}</div>
+                            )}
                         </div>
                     </div>
                 </div>

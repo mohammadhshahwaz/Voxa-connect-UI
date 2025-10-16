@@ -1,12 +1,16 @@
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import "./sidebar.css";
+import { getPersistedAuth, persistAuth } from "../../services/auth";
 
 const Sidebar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const auth = getPersistedAuth<{ username?: string }>();
+  const displayName = auth?.username || "User";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -97,27 +101,36 @@ const Sidebar: React.FC = () => {
       </nav>
 
       {/* User Profile */}
-      <div ref={dropdownRef} className="p-4 border-t  border-[var(--color-line)] relative">
-        {/* Button */}
+      <div ref={dropdownRef} className="p-4 border-t border-[var(--color-line)] relative">
+        <div
+          id="user-menu"
+          className={`mb-2 rounded-lg border border-[var(--color-line)]  text-[var(--color-primary)] overflow-hidden transition-all duration-200 ease-out shadow-lg z-20 ${open ? 'max-h-40 opacity-100 p-1' : 'max-h-0 opacity-0 p-0 pointer-events-none'}`}
+          role="region"
+          aria-hidden={!open}
+        >
+          <button
+            onClick={() => {
+              persistAuth(null);
+              setOpen(false);
+              navigate('/login');
+            }}
+            className="block w-full text-left px-4 py-2 text-md hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-dark)]/10"
+          >
+            Logout
+          </button>
+        </div>
         <button
           onClick={() => setOpen(!open)}
+          aria-expanded={open}
+          aria-controls="user-menu"
           className="flex items-center justify-between w-full px-3 py-2 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-dark)] font-medium"
         >
           <div className="flex items-center gap-2">
             <img src="/elli.png" alt="User Avatar" className="w-8 h-8" />
-            <span className="user-name">Ella Sky</span>
+            <span className="user-name">{displayName}</span>
           </div>
-          <FontAwesomeIcon icon={open ? faChevronUp : faChevronDown} />
+          <FontAwesomeIcon className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} icon={open ? faChevronUp : faChevronDown} />
         </button>
-
-        {/* Dropdown Menu */}
-        {open && (
-          <div className="absolute top-[-55px] border-2 rounded-lg  mt-2 w-56 bg-[var(--color-primary-dark)] z-50">
-            <button className="block w-full text-left px-4 py-2 text-md text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] hover:bg-[var(--color-primary)]">
-              Logout
-            </button>
-          </div>
-        )}
       </div>
     </aside>
   );

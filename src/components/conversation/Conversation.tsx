@@ -1,10 +1,15 @@
 import { useState } from "react";
 import "./conversation.css";
 import InputBox from "../inputbox/inputBox";
+
 import FormatResponse from "../../hooks/formatResponse";
 import type { Message, MessagePayload } from "../../types/types";
+// import { History } from "lucide-react";
+import ChatHistory from "../chatHistory/chatHistory";
+
 
 const Conversation: React.FC = () => {
+  // const [openHistory, setOpenHistory] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: "ai",
@@ -90,30 +95,28 @@ const Conversation: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-[var(--color-bg-light-sec)] flex flex-col">
+    <div className="w-full h-screen relative bg-[var(--color-bg-light-sec)] flex flex-col">
       {/* Header */}
       <div className="  flex flex-row conversation border-b border-[var(--color-line-dark)] flex-shrink-0 bg-[var(--color-bg-light)]">
         <h1 className="conversation-heading text-[var(--color-primary-dark)] font-bold text-lg">
           VoxaConnect AI Assistant
         </h1>
-        {/* <p className="conversation-para text-[var(--color-neutral-dark)] text-sm">
-          Ask questions about your company information
-        </p> */}
-        <div className="chat-history text-end ">
-          <a className=" border rounded p-2 hover:bg-[var(--color-primary-dark)] hover:text-[var(--color-primary)]" href="/chat-history">
-          Chat History
-          </a>
-        </div>
       </div>
+
+      <div className=" absolute top-24 right-0 overflow-hidden">
+        <ChatHistory />
+      </div>
+      {/* Sidebar (Chat History) */}
+
 
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col-reverse space-y-4 space-y-reverse">
+
         {[...messages].reverse().map((msg, i) => (
           <div
             key={i}
-            className={`flex items-start gap-3 ${
-              msg.sender === "user" ? "flex-row-reverse" : "flex-row"
-            } chat-box`}
+            className={`flex items-start gap-3 ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"
+              } chat-box`}
           >
             <img
               src={msg.sender === "user" ? "/Rectangle 34.png" : "/ai-20.png"}
@@ -121,11 +124,10 @@ const Conversation: React.FC = () => {
               className="w-8 h-8 rounded-full object-cover"
             />
             <div
-              className={`p-3 rounded-lg max-w-lg text-sm ${
-                msg.sender === "user"
-                  ? "bg-[var(--bg-white)] border-r-4 border-[var(--color-primary-dark)]"
-                  : "bg-[var(--bg-white)] border-l-4 border-[var(--color-primary-dark)]"
-              } user-` }
+              className={`p-3 rounded-lg max-w-lg text-sm ${msg.sender === "user"
+                ? "bg-[var(--bg-white)] border-r-4 border-[var(--color-primary-dark)]"
+                : "bg-[var(--bg-white)] border-l-4 border-[var(--color-primary-dark)]"
+                } user-`}
             >
               {msg.sender === "ai" ? (
                 <div className="text-[var(--color-neutral-dark)] flex items-start gap-2">

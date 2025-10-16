@@ -1,203 +1,152 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { getPersistedAuth } from "../../services/auth";
-import { listSessions, listMessages, type ListMessagesResponse } from "../../services/chat";
+import React, { useState } from "react";
+import { ChevronDown, History} from "lucide-react";
 
-type SessionId = string;
+interface ChatItem {
+  id: string;
+  title: string;
+}
 
 const ChatHistory: React.FC = () => {
-  const auth = useMemo(() => getPersistedAuth<{ user_id?: string; username?: string }>(), []);
-  const userId = auth?.user_id || "";
+  const [isHovered, setIsHovered] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState({
+    recent: true,
+    past15: true,
+    older: true,
+  });
 
-  const [sessions, setSessions] = useState<SessionId[]>([]);
-  const [loadingSessions, setLoadingSessions] = useState(false);
-  const [sessionsError, setSessionsError] = useState<string | null>(null);
+  const recentChats: ChatItem[] = [
+    { id: "1", title: "After running smart sche..." },
+    { id: "2", title: "Why is it important to add..." },
+    { id: "3", title: "If I see a Channel overlap..." },
+  ];
 
-  const [activeSession, setActiveSession] = useState<SessionId | null>(null);
-  const [messages, setMessages] = useState<ListMessagesResponse["message_results"]>([]);
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const [messagesError, setMessagesError] = useState<string | null>(null);
-  const [previews, setPreviews] = useState<Record<string, string>>({});
-  const [loadingPreviews, setLoadingPreviews] = useState(false);
+  const toggle = (key: keyof typeof open) => {
+    setOpen((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
-  // Fetch sessions on mount
-  useEffect(() => {
-    if (!userId) return;
-    let cancelled = false;
-    setLoadingSessions(true);
-    setSessionsError(null);
-    listSessions(userId)
-      .then((res) => {
-        if (cancelled) return;
-        if (!res.ok) {
-          setSessionsError(res.error || "Failed to load sessions");
-          return;
-        }
-        const sids = res.data.sessions || [];
-        setSessions(sids);
-        // After sessions load, fetch first message preview for each
-        if (sids.length) {
-          setLoadingPreviews(true);
-          Promise.allSettled(
-            sids.map(async (sid) => {
-              const r = await listMessages(userId, sid, 0, 1);
-              if (r.ok) {
-                const first = r.data.message_results?.[0];
-                const content = first?.content || "";
-                const words = content.trim().split(/\s+/).slice(0, 10).join(" ");
-                // capture order if provided to help sort (best-effort)
-                const ord = typeof first?.order === 'number' ? first.order : -1;
-                return { sid, preview: words || "New chat", order: ord };
-              }
-              return { sid, preview: "New chat", order: -1 };
-            })
-          ).then((all) => {
-            const map: Record<string, string> = {};
-            const orders: Record<string, number> = {};
-            for (const it of all) {
-              if (it.status === "fulfilled" && it.value) {
-                map[it.value.sid] = it.value.preview + (it.value.preview ? "…" : "");
-                orders[it.value.sid] = it.value.order;
-              }
-            }
-            // Sort using freshly computed orders (desc)
-            const sorted = sids.slice().sort((a, b) => (orders[b] ?? -1) - (orders[a] ?? -1));
-            setPreviews(map);
-            setSessions(sorted);
-          }).finally(() => setLoadingPreviews(false));
-        }
-      })
-      .catch((e) => !cancelled && setSessionsError(e?.message || "Failed to load sessions"))
-      .finally(() => !cancelled && setLoadingSessions(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [userId]);
-
-  const onSelectSession = (sid: SessionId) => {
-    setActiveSession(sid);
-    setMessages([]);
-    setMessagesError(null);
-    if (!userId) return;
-    setLoadingMessages(true);
-    listMessages(userId, sid)
-      .then((res) => {
-        if (!res.ok) {
-          setMessagesError(res.error || "Failed to load messages");
-          return;
-        }
-        setMessages(res.data.message_results || []);
-      })
-      .catch((e) => setMessagesError(e?.message || "Failed to load messages"))
-      .finally(() => setLoadingMessages(false));
+  const handleButtonClick = () => {
+    setIsOpen(!isOpen);
   };
 
   return (
-    <div className="min-h-screen p-4" style={{ background: "var(--color-bg-light)" }}>
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold" style={{ color: "var(--color-primary-dark)" }}>Chat History</h1>
-          <div className="flex gap-2">
-            <a
-              href="/conversations"
-              className="px-3 py-2 rounded-md font-semibold"
-              style={{ background: "var(--color-primary)", color: "var(--color-primary-dark)" }}
-            >
-              Back to Chat
-            </a>
+    <>
+      {/* Show Toggle Button only when panel is closed */}
+      {!isOpen && (
+        <button
+          className={`bg-[#2D3142] text-white rounded flex items-center gap-3 transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl ${
+            isHovered ? "px-6 py-3" : "p-3"
+          }`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onClick={handleButtonClick}
+          style={{ borderRadius: "8px 0 0 8px" }}
+        >
+          <span
+            className={`font-medium whitespace-pre transition-all duration-300 ${
+              isHovered ? "opacity-100 w-auto" : "opacity-0 w-0"
+            }`}
+          >
+            Chat History
+          </span>
+          <History className="flex-shrink-0" />
+        </button>
+      )}
+
+      {/* Full Chat History Panel */}
+      {isOpen && (
+        <div className="w-72 bg-[#2D3142] rounded-lg shadow-2xl text-[#E3E5EB] flex flex-col h-[500px] mt-2">
+          {/* Header */}
+          <div className="flex items-center gap-2 px-4 py-4 border-b border-[#3E4254]">
+            <button onClick={handleButtonClick}>
+              <img src="/backhistory.svg" alt="back" className="h-8 w-8" />
+            </button>
+            <span className="text-base font-semibold">Chat History</span>
+            <History className="h-5 w-5 text-[#B9BBC6] ml-auto" />
+            
+          </div>
+
+          {/* New Chat Button */}
+          <div className="px-4 py-4">
+            <button className="w-full bg-white text-[#2D3142] py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm font-semibold hover:bg-gray-100 transition-all shadow-sm">
+              New Chat
+              {/* <MessageSquare className="h-4 w-4" /> */}
+              <img src="/chat-svg.svg" className="h-8 w-8" alt="chat image" />
+            </button>
+          </div>
+
+          {/* Scrollable Chat List */}
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
+            {/* Recent */}
+            <div className="mb-4">
+              <button
+                onClick={() => toggle("recent")}
+                className="w-full flex justify-between items-center text-sm text-[#B9BBC6] hover:text-white transition-all py-2"
+              >
+                <span className="font-medium">Recent</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    open.recent ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {open.recent && (
+                <div className="mt-2 space-y-1">
+                  {recentChats.map((chat) => (
+                    <button
+                      key={chat.id}
+                      className="w-full text-left px-3 py-2.5 rounded-lg text-xs text-[#B9BBC6] hover:bg-[#3B4054] hover:text-white transition-all"
+                    >
+                      {chat.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Past 15 Days */}
+            <div className="mb-4">
+              <button
+                onClick={() => toggle("past15")}
+                className="w-full flex justify-between items-center text-sm text-[#B9BBC6] hover:text-white transition-all py-2"
+              >
+                <span className="font-medium">Past 15 Days</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    open.past15 ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {open.past15 && (
+                <div className="pl-3 mt-2 text-xs text-[#6B7280] italic">
+                  No chats
+                </div>
+              )}
+            </div>
+
+            {/* Older */}
+            <div>
+              <button
+                onClick={() => toggle("older")}
+                className="w-full flex justify-between items-center text-sm text-[#B9BBC6] hover:text-white transition-all py-2"
+              >
+                <span className="font-medium">Older</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    open.older ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {open.older && (
+                <div className="pl-3 mt-2 text-xs text-[#6B7280] italic">
+                  No chats
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-        {!userId ? (
-          <div className="p-4 rounded-lg" style={{ background: "var(--bg-white)" }}>
-            <p className="text-sm" style={{ color: "var(--color-primary-dark)" }}>
-              You must be logged in to view chat history.
-            </p>
-            <a href="/login" className="underline" style={{ color: "var(--color-primary-dark)" }}>Go to Login</a>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Sessions list */}
-            <div className="md:col-span-1 rounded-xl shadow-sm border" style={{ background: "var(--bg-white)", borderColor: "var(--color-line)" }}>
-              <div className="px-4 py-3 border-b" style={{ borderColor: "var(--color-line)" }}>
-                <h2 className="font-semibold" style={{ color: "var(--color-primary-dark)" }}>Sessions</h2>
-              </div>
-              <div className="max-h-[70vh] overflow-auto">
-                {loadingSessions && (
-                  <div className="p-4 text-sm" style={{ color: "var(--color-primary-dark)" }}>Loading sessions...</div>
-                )}
-                {sessionsError && (
-                  <div className="p-4 text-sm text-red-600">{sessionsError}</div>
-                )}
-                {!loadingSessions && !sessionsError && sessions.length === 0 && (
-                  <div className="p-4 text-sm" style={{ color: "var(--color-primary-dark)" }}>No sessions found.</div>
-                )}
-                <ul className="divide-y" style={{ borderColor: "var(--color-line)" }}>
-                  {sessions.map((sid) => (
-                    <li key={sid}>
-                      <button
-                        onClick={() => onSelectSession(sid)}
-                        className={`w-full text-left px-4 py-3 hover:opacity-90 ${activeSession === sid ? "font-semibold" : ""}`}
-                        style={{ color: "var(--color-primary-dark)" }}
-                      >
-                        {previews[sid] || (loadingPreviews ? "Loading…" : sid)}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Messages list */}
-            <div className="md:col-span-2 rounded-xl shadow-sm border" style={{ background: "var(--bg-white)", borderColor: "var(--color-line)" }}>
-              <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: "var(--color-line)" }}>
-                <h2 className="font-semibold" style={{ color: "var(--color-primary-dark)" }}>
-                  {activeSession ? `Session: ${activeSession}` : "Select a session"}
-                </h2>
-                {activeSession && (
-                  <button
-                    onClick={() => onSelectSession(activeSession)}
-                    className="text-sm underline"
-                    style={{ color: "var(--color-primary-dark)" }}
-                  >
-                    Refresh
-                  </button>
-                )}
-              </div>
-              <div className="max-h-[70vh] overflow-auto p-4 space-y-3">
-                {!activeSession && (
-                  <div className="text-sm" style={{ color: "var(--color-primary-dark)" }}>Choose a session to view messages.</div>
-                )}
-                {loadingMessages && (
-                  <div className="text-sm" style={{ color: "var(--color-primary-dark)" }}>Loading messages...</div>
-                )}
-                {messagesError && (
-                  <div className="text-sm text-red-600">{messagesError}</div>
-                )}
-                {!loadingMessages && !messagesError && messages && messages.length > 0 && (
-                  <ul className="space-y-2">
-                    {messages
-                      .slice()
-                      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                      .map((m) => (
-                        <li key={m.message_id} className="rounded-lg p-3 border" style={{ borderColor: "var(--color-line)", background: "var(--color-primary)" }}>
-                          <div className="text-xs mb-1 opacity-80" style={{ color: "var(--color-primary-dark)" }}>
-                            {m.role?.toUpperCase() || "MESSAGE"} • {m.session_id}
-                          </div>
-                          <div className="text-sm" style={{ color: "var(--color-primary-dark)" }}>{m.content}</div>
-                        </li>
-                      ))}
-                  </ul>
-                )}
-                {!loadingMessages && !messagesError && activeSession && messages?.length === 0 && (
-                  <div className="text-sm" style={{ color: "var(--color-primary-dark)" }}>No messages in this session.</div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 
