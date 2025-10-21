@@ -18,7 +18,7 @@ const Home = () => {
               </div>
               <div className="f-section-para">
                 <p>
-                  Turn every voice into action with <span className="text-[var(--color-primary)]"> VoxaConnect</span> <br />
+                  Turn every voice into action with <span className="text-[var(--color-primary)]"> QConnect</span> <br />
                   your AI-powered conversational application.
                 </p>
               </div>
@@ -52,7 +52,7 @@ const Home = () => {
       {/* Conversation Section */}
       <div className="convo-section">
         <h1 className="text-[var(--color-primary-dark)] text-3xl font-semibold text-center p-1">
-          How to Start a Conversation with VoxaConnect
+          How to Start a Conversation with QConnect
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
           {conversationSteps.map((step, idx) => (

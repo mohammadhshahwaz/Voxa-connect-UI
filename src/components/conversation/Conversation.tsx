@@ -99,7 +99,7 @@ const Conversation: React.FC = () => {
       {/* Header */}
       <div className="  flex flex-row conversation border-b border-[var(--color-line-dark)] flex-shrink-0 bg-[var(--color-bg-light)]">
         <h1 className="conversation-heading text-[var(--color-primary-dark)] font-bold text-lg">
-          VoxaConnect AI Assistant
+          QConnect AI Assistant
         </h1>
       </div>
 

@@ -31,7 +31,7 @@ export const conversationSteps: ConversationStep[] = [
   {
     step: "Step 4",
     title: "Start Conversing",
-    description: "Engage in a natural, real-time conversation with VoxaConnect.",
+    description: "Engage in a natural, real-time conversation with QConnect.",
     img: "/icons-start.svg",
   },
 ]
