@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { MessagePayload, ChatRequestBody } from "../../types/types";
 import { getPersistedAuth } from "../../services/auth";
+import { config } from "../../config/config";
 
 interface InputBoxProps {
   onMessageSent?: (payload: MessagePayload) => void;
@@ -23,10 +24,10 @@ const InputBox: React.FC<InputBoxProps> = ({ onMessageSent }) => {
   const lastChunkIdRef = useRef<string | null>(null);
   const lastContentLengthRef = useRef<number>(0);
 
-  // WebSocket endpoint for streaming chat (configurable via Vite env)
-  const WS_URL = (import.meta as any).env?.VITE_WS_URL || "ws://localhost:8003/api/v1/chat_stream";
-  // How long to wait without new tokens before considering a reply complete (ms)
-  const STREAM_IDLE_MS = Number((import.meta as any).env?.VITE_STREAM_IDLE_MS) || 5000;
+  
+  const WS_URL = config.wsUrl || "ws://localhost:8003/api/v1/chat_stream";
+
+  const STREAM_IDLE_MS = Number(config.stream_idle_ms) || 5000;
 
   // Generate light-weight UUID v4-ish (sufficient for client-generated ids)
   const genId = () =>

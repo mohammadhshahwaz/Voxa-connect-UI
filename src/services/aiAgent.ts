@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { GenerateToken } from "../types/types";
+import { config } from "../config/config";
 
 
 export function useLivekitToken() {
@@ -18,8 +19,8 @@ export function useLivekitToken() {
 
         const tokenData = await getGenerateToken({
           name: username,
-          api_key: import.meta.env.VITE_LIVEKIT_API_KEY,
-          api_secret: import.meta.env.VITE_LIVEKIT_API_SECRET,
+          api_key: config.livekitapiKey,
+          api_secret: config.livekitapiSecret,
         } as GenerateToken);
 
         if (tokenData?.token) {
@@ -39,8 +40,7 @@ export function useLivekitToken() {
   return token;
 }
 
-const TOKEN_WS_URL =
-  import.meta.env.VITE_LIVEKIT_WS_URL || "ws://localhost:8003/ws/livekit";
+const TOKEN_WS_URL = config.livekitwsUrl || "ws://localhost:8003/ws/livekit";
 
 export function connectLivekitSocket(
   agentName: string,
@@ -51,7 +51,7 @@ export function connectLivekitSocket(
   ws.binaryType = 'arraybuffer';
 
   ws.onopen = () => {
-    console.log("Connected to LiveKit WebSocket");
+    console.log(" Connected to LiveKit WebSocket");
     ws.send(JSON.stringify({ type: "get_token", agent_name: agentName }));
   };
 

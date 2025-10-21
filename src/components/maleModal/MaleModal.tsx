@@ -1,11 +1,12 @@
+
+
 import React, { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Video as VideoIcon, VideoOff, Phone, Volume2, VolumeX } from "lucide-react";
 import { connectLivekitSocket, getGenerateToken } from "../../services/aiAgent";
 import { Room, RoomEvent, createLocalAudioTrack, createLocalVideoTrack, Track } from "livekit-client";
 import { LiveKitRoom, RoomAudioRenderer, ParticipantTile, useTracks } from "@livekit/components-react";
 import "@livekit/components-styles";
-
-
+import { config } from "../../config/config";
 
 interface MaleModalProps {
     onClose: () => void;
@@ -19,6 +20,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
     const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
     const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
     const roomRef = useRef<Room | null>(null);
+    const hasAutoStartedRef = useRef(false);
     const [started, setStarted] = useState(false);
     const [micOn, setMicOn] = useState(true);
     const [camOn, setCamOn] = useState(true);
@@ -26,56 +28,50 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
     type ChatMsg = { id: string; role: "user" | "agent"; text: string };
     const [messages, setMessages] = useState<ChatMsg[]>([]);
     const [remoteVideoActive, setRemoteVideoActive] = useState(false);
+    const [, setIsAtBottom] = useState(true);
 
     const extractTranscript = (raw: any): { role: "user" | "agent"; text: string } | null => {
         try {
-            let input: any = raw;
-            if (raw instanceof ArrayBuffer) {
-                input = new TextDecoder().decode(raw);
-            } else if (ArrayBuffer.isView(raw)) {
-                // TypedArray (e.g., Uint8Array) fallback
-                try { input = new TextDecoder().decode(raw as Uint8Array); } catch { /* ignore */ }
+            // If it's a string, try to parse as JSON first, otherwise use as-is
+            let msg = raw;
+            if (typeof raw === 'string') {
+                try {
+                    msg = JSON.parse(raw);
+                } catch {
+                    // If not JSON, treat the entire string as text
+                    if (raw.trim().length > 0) {
+                        return { role: 'agent', text: raw.trim() };
+                    }
+                    return null;
+                }
             }
 
-            const msg = typeof input === 'string'
-                ? (() => { try { return JSON.parse(input); } catch { return { text: input }; } })()
-                : input;
-
+            // Look for text in various possible locations
             const candidates = [
                 msg?.text,
                 msg?.content,
                 msg?.message,
                 msg?.transcript,
-                msg?.partial,
-                msg?.final,
-                msg?.delta,
-                msg?.payload?.text,
                 msg?.data?.text,
                 msg?.data?.content,
                 msg?.data?.message,
                 msg?.data?.transcript,
-                msg?.data?.delta,
-                msg?.data?.payload?.text,
-                msg?.alternatives?.[0]?.transcript,
-                msg?.choices?.[0]?.delta?.content,
-                msg?.choices?.[0]?.message?.content,
+                msg?.payload?.text,
+                msg?.payload?.content,
             ];
+
             const text = candidates.find((v) => typeof v === 'string' && v.trim().length > 0);
             if (!text) {
-                console.debug('[Transcript] No textual content found in message:', msg);
+                console.log('No text found in message:', msg);
                 return null;
             }
 
-            const roleCandidates = [
-                (msg?.role === 'user' || msg?.role === 'agent') ? msg?.role : undefined,
-                // (msg?.origin === 'user' || msg?.origin === 'agent') ? msg?.origin : undefined,
-                // (msg?.sender === 'user' || msg?.sender === 'agent') ? msg?.sender : undefined,
-                // (msg?.data?.role === 'user' || msg?.data?.role === 'agent') ? msg?.data?.role : undefined,
-            ].filter(Boolean) as ("user" | "agent")[];
-
-            const role = roleCandidates[0] || 'agent';
+            // Determine role from message
+            const role = (msg?.role === 'user' || msg?.role === 'agent') ? msg.role : 'agent';
+            console.log('Extracted transcript: ', { role, text });
             return { role, text };
-        } catch {
+        } catch (error) {
+            console.error('Error extracting transcript:', error);
             return null;
         }
     };
@@ -87,7 +83,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
 
         return (
             <>
-                <RoomAudioRenderer room={roomRef.current as Room} />
+                <RoomAudioRenderer />
                 {/* Main Participant Video (fills container) */}
                 {mainRemote ? (
                     <div className="w-full h-full">
@@ -95,7 +91,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                     </div>
                 ) : (
                     <img
-                        src="./ai-20.png"
+                        src="./placeholder.png"
                         alt="Main Participant"
                         className="w-full h-full object-cover"
                     />
@@ -116,7 +112,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
         if (!localCam) {
             return (
                 <img
-                    src="./Rectangle 34.png"
+                    src="./placeholder.png"
                     alt="Small Participant"
                     className="w-full h-full object-cover"
                 />
@@ -130,7 +126,6 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
         return () => {
             const fetchToken = async () => {
                 try {
-                    
                     const raw = localStorage.getItem("auth");
                     let username = "guest";
 
@@ -140,14 +135,14 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                     }
                     const tokenData = await getGenerateToken({
                         name: username,
-                        api_key: import.meta.env.VITE_LIVEKIT_API_KEY,
-                        api_secret: import.meta.env.VITE_LIVEKIT_API_SECRET,
+                        api_key: config.livekitapiKey,
+                        api_secret: config.livekitapiSecret,
                     } as any);
                     console.log("Succesfully Generated LiveKit token ");
                     if (tokenData?.token) {
-                        console.log("Token:", tokenData.token);
+                        console.log("Token:");
                     } else {
-                        console.warn("Token not found in response:", tokenData);
+                        console.warn("Token not found in response:");
                     }
                 } catch (err) {
                     console.error("Error fetching token:", err);
@@ -211,10 +206,28 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
         }
     }, [started, camOn, micOn]);
 
+    useEffect(() => {
+        // auto scroll transcript in transcript section
+        const transcriptContainer = document.getElementById("transcript");
+        if (transcriptContainer) {
+            const handleScroll = () => {
+                const isScrollAtBottom = Math.abs(
+                    transcriptContainer.scrollHeight -
+                    (transcriptContainer.scrollTop + transcriptContainer.clientHeight)
+                ) < 5; // Small threshold for floating point inaccuracies
+                setIsAtBottom(isScrollAtBottom);
+            };
 
+            transcriptContainer.addEventListener("scroll", handleScroll);
+
+            // Cleanup function to remove the event listener
+            return () => {
+                transcriptContainer.removeEventListener("scroll", handleScroll);
+            };
+        }
+    }, []);
 
     const handleStartCall = async () => {
-
         try {
             // Request camera and mic permissions
             const stream = await navigator.mediaDevices.getUserMedia({
@@ -238,30 +251,18 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
 
             // Connect to AI Agent after permissions granted
             wsRef.current = connectLivekitSocket("avatar-rafik", async (msg: any) => {
+                console.log("Received message:", msg);
                 const parsed = extractTranscript(msg);
                 if (parsed) {
-                    // console.debug('[Transcript][WS] Appending:', parsed);
                     setMessages((prev) => ([
                         ...prev,
                         { id: `${Date.now()}-${prev.length}`, role: parsed.role, text: parsed.text }
                     ]));
                 }
-                else if (typeof msg === 'string' && msg.trim()) {
-                    setMessages((prev) => ([
-                        ...prev,
-                        { id: `${Date.now()}-${prev.length}`, role: 'agent', text: msg.trim() }
-                    ]));
-                } else if (msg && (msg instanceof ArrayBuffer || ArrayBuffer.isView(msg))) {
-                    const size = msg instanceof ArrayBuffer ? msg.byteLength : (msg as ArrayBufferView).byteLength;
-                    setMessages((prev) => ([
-                        ...prev,
-                        { id: `${Date.now()}-${prev.length}`, role: 'agent', text: `[binary ${size} bytes]` }
-                    ]));
-                }
 
                 if (msg?.type === 'token_response') {
                     const token = msg?.data?.participantToken || msg?.data?.token || msg?.token;
-                    const livekitUrl = (import.meta as any)?.env?.VITE_LIVEKIT_WS_URL;
+                    const livekitUrl = config.livekitwsUrl;
                     if (!livekitUrl) {
                         console.warn("Missing VITE_LIVEKIT_WS_URL in .env for LiveKit connection");
                         return;
@@ -274,8 +275,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                             room.on(RoomEvent.TrackSubscribed, (track) => {
                                 if (track.kind === Track.Kind.Video && remoteVideoRef.current) {
                                     const ms = new MediaStream([track.mediaStreamTrack]);
-                                    // @ts-ignore
-                                    remoteVideoRef.current.srcObject = ms;
+                                    remoteVideoRef.current.srcObject = ms as any;
                                     remoteVideoRef.current
                                         .play()
                                         .then(() => setRemoteVideoActive(true))
@@ -289,73 +289,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                                 }
                             });
 
-                            room.on(RoomEvent.DataReceived, (payload) => {
-                                try {
-                                    const textData = typeof payload === 'string'
-                                        ? payload
-                                        : ArrayBuffer.isView(payload)
-                                            ? new TextDecoder().decode(payload as Uint8Array)
-                                            : new TextDecoder().decode(payload as ArrayBuffer);
-                                    const parsedMsg = extractTranscript(textData) || { role: 'agent' as const, text: textData };
-                                    if (parsedMsg?.text) {
-                                        // console.debug('[Transcript][LK-WS] Appending:', parsedMsg);
-                                        setMessages((prev) => ([
-                                            ...prev,
-                                            { id: `${Date.now()}-${prev.length}`, role: parsedMsg.role, text: parsedMsg.text }
-                                        ]));
-                                    }
-                                    else if (textData && `${textData}`.trim()) {
-                                        setMessages((prev) => ([
-                                            ...prev,
-                                            { id: `${Date.now()}-${prev.length}`, role: 'agent', text: `${textData}`.trim() }
-                                        ]));
-                                    } else if (payload && (payload instanceof ArrayBuffer || ArrayBuffer.isView(payload))) {
-                                        const size = payload instanceof ArrayBuffer ? payload.byteLength : (payload as ArrayBufferView).byteLength;
-                                        setMessages((prev) => ([
-                                            ...prev,
-                                            { id: `${Date.now()}-${prev.length}`, role: 'agent', text: `[binary ${size} bytes]` }
-                                        ]));
-                                    }
-                                } catch { }
-                            });
-
-                            // LiveKit Text Stream (if supported by this SDK build)
-                            try {
-                                const anyRoom: any = room as any;
-                                if (typeof anyRoom.registerTextStreamHandler === 'function') {
-                                    anyRoom.registerTextStreamHandler('lk.transcription', async (reader: any) => {
-                                        try {
-                                            const message = await reader.readAll();
-                                            const parsed = extractTranscript(message) || { role: 'agent' as const, text: `${message}` };
-                                            if (parsed?.text) {
-                                                setMessages((prev) => ([
-                                                    ...prev,
-                                                    { id: `${Date.now()}-${prev.length}`, role: parsed.role, text: parsed.text }
-                                                ]));
-                                            }
-                                        } catch { }
-                                    });
-                                }
-                            } catch {}
-
                             await room.connect(livekitUrl, token);
-
-                            // Publish/enable local mic and camera (use LiveKit-created tracks for correct source types)
-                            try {
-                                const mic = await createLocalAudioTrack();
-                                await room.localParticipant.publishTrack(mic.mediaStreamTrack);
-                                const videoTracks = mediaRef.current?.getVideoTracks();
-                                if (videoTracks && videoTracks[0]) {
-                                    await room.localParticipant.publishTrack(videoTracks[0]);
-                                } else {
-                                    const cam = await createLocalVideoTrack();
-                                    await room.localParticipant.publishTrack(cam.mediaStreamTrack);
-                                }
-                                await room.localParticipant.setMicrophoneEnabled(true);
-                                await room.localParticipant.setCameraEnabled(true);
-                            } catch (e) {
-                                console.warn("Failed to publish local audio:", e);
-                            }
                         }
                     } catch (e) {
                         console.error("Failed to join LiveKit room:", e);
@@ -373,12 +307,12 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                 }
                 const tokenData = await getGenerateToken({
                     name: username,
-                    api_key: (import.meta as any)?.env?.VITE_LIVEKIT_API_KEY,
-                    api_secret: (import.meta as any)?.env?.VITE_LIVEKIT_API_SECRET,
+                    api_key: config.livekitapiKey,
+                    api_secret: config.livekitapiSecret,
                 } as any);
 
                 const token = tokenData?.token;
-                const livekitUrl = (import.meta as any)?.env?.VITE_LIVEKIT_WS_URL;
+                const livekitUrl = config.livekitwsUrl;
                 if (token && livekitUrl) {
                     try {
                         if (!roomRef.current) {
@@ -403,69 +337,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                                 }
                             });
 
-                            room.on(RoomEvent.DataReceived, (payload) => {
-                                try {
-                                    const textData = typeof payload === 'string'
-                                        ? payload
-                                        : ArrayBuffer.isView(payload)
-                                            ? new TextDecoder().decode(payload as Uint8Array)
-                                            : new TextDecoder().decode(payload as ArrayBuffer);
-                                    const parsedMsg = extractTranscript(textData) || { role: 'agent' as const, text: textData };
-                                    if (parsedMsg?.text) {
-                                        // console.debug('[Transcript][LK] Appending:', parsedMsg);
-                                        setMessages((prev) => ([
-                                            ...prev,
-                                            { id: `${Date.now()}-${prev.length}`, role: parsedMsg.role, text: parsedMsg.text }
-                                        ]));
-                                    }
-                                    else if (textData && `${textData}`.trim()) {
-                                        setMessages((prev) => ([
-                                            ...prev,
-                                            { id: `${Date.now()}-${prev.length}`, role: 'agent', text: `${textData}`.trim() }
-                                        ]));
-                                    }
-                                } catch { }
-                            });
-
-                            // LiveKit Text Stream (if supported by this SDK build)
-                            try {
-                                const anyRoom: any = room as any;
-                                if (typeof anyRoom.registerTextStreamHandler === 'function') {
-                                    anyRoom.registerTextStreamHandler('lk.transcription', async (reader: any) => {
-                                        try {
-                                            const message = await reader.readAll();
-                                            const parsed = extractTranscript(message) || { role: 'agent' as const, text: `${message}` };
-                                            if (parsed?.text) {
-                                                setMessages((prev) => ([
-                                                    ...prev,
-                                                    { id: `${Date.now()}-${prev.length}`, role: parsed.role, text: parsed.text }
-                                                ]));
-                                            }
-                                        } catch { }
-                                    });
-                                }
-                            } catch {}
-
                             await room.connect(livekitUrl, token);
-
-                            // Publish local mic and camera (if available)
-                            try {
-                                const audioTracks = mediaRef.current?.getAudioTracks();
-                                if (audioTracks && audioTracks[0]) {
-                                    await room.localParticipant.publishTrack(audioTracks[0]);
-                                } else {
-                                    const mic = await createLocalAudioTrack();
-                                    await room.localParticipant.publishTrack(mic.mediaStreamTrack);
-                                }
-                                const videoTracks = mediaRef.current?.getVideoTracks();
-                                if (videoTracks && videoTracks[0]) {
-                                    await room.localParticipant.publishTrack(videoTracks[0]);
-                                }
-                                await room.localParticipant.setMicrophoneEnabled(true);
-                                await room.localParticipant.setCameraEnabled(true);
-                            } catch (e) {
-                                console.warn("Failed to publish local audio:", e);
-                            }
                         }
                     } catch (e) {
                         console.error("Failed to join LiveKit room with direct token:", e);
@@ -478,11 +350,95 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                 console.warn("Direct LiveKit connect attempt failed:", e);
             }
 
+            // Register transcription handler once after connection (shared for both paths)
+            if (roomRef.current) {
+                console.log("Registering transcription handler...");
+                try {
+                    roomRef.current.registerTextStreamHandler('lk.transcription', async (reader, participantInfo) => {
+                        console.log("Transcription handler fired for participant:", participantInfo.identity);
+                        try {
+                            let fullText = '';
+                            // const isTranscription = reader.info?.attributes?.['lk.transcribed_track_id'] != null;
+                            const segmentId = reader.info?.attributes?.['lk.segment_id'];
+                            const role = participantInfo.identity.toLowerCase().includes('agent') ||
+                                participantInfo.identity.toLowerCase().includes('avatar')
+                                ? 'agent'
+                                : 'user';
+
+                            // Incremental read with async iterator for real-time chunks
+                            for await (const chunk of reader) {
+                                if (typeof chunk === 'string' && chunk.trim().length > 0) {
+                                    fullText += chunk;
+                                    // console.log(`📝 Interim chunk [segment=${segmentId}]: ${chunk} (role: ${role})`);
+                                }
+                            }
+
+                            // Check if stream closed normally and has final flag
+                            const isFinal = reader.info?.attributes?.['lk.transcription_final'] === 'true';
+                            // console.log(`📝 Full stream [final=${isFinal}, isTranscription=${isTranscription}, text="${fullText}", role: ${role}]`);
+
+                            if (isFinal && fullText.trim().length > 0) {
+                                setMessages((prev) => [
+                                    ...prev,
+                                    {
+                                        id: `${Date.now()}-${prev.length}-${segmentId || ''}`,
+                                        role: role as "user" | "agent",
+                                        text: fullText.trim()
+                                    }
+                                ]);
+                            }
+
+                        } catch (error) {
+                            console.error('Error reading transcription stream:', error);
+                        }
+                    });
+                    console.log("Transcription handler registered successfully");
+                } catch (error) {
+                    // Handle case where handler is already registered (only one allowed per topic)
+                    if (error instanceof Error) {
+                        if (error.message?.includes('already set') || error.message?.includes('handler')) {
+                            console.log("Transcription handler already registered for this topic");
+                        } else {
+                            console.error("Error registering transcription handler:", error.message);
+                        }
+                    } else {
+                        console.error("Unknown error registering transcription handler:", error);
+                    }
+                }
+            }
+
+
+            // Publish/enable local mic and camera (use LiveKit-created tracks for correct source types)
+            try {
+                const mic = await createLocalAudioTrack();
+                await roomRef.current?.localParticipant.publishTrack(mic.mediaStreamTrack);
+                const videoTracks = mediaRef.current?.getVideoTracks();
+                if (videoTracks && videoTracks[0]) {
+                    await roomRef.current?.localParticipant.publishTrack(videoTracks[0]);
+                } else {
+                    const cam = await createLocalVideoTrack();
+                    await roomRef.current?.localParticipant.publishTrack(cam.mediaStreamTrack);
+                }
+                await roomRef.current?.localParticipant.setMicrophoneEnabled(true);
+                await roomRef.current?.localParticipant.setCameraEnabled(true);
+            } catch (e) {
+                console.warn("Failed to publish local audio:", e);
+            }
+
             setStarted(true);
         } catch (err) {
             console.error("Failed to start call:", err);
         }
     };
+
+    // Auto-start the call when the modal mounts (guarded for StrictMode)
+    useEffect(() => {
+        if (!hasAutoStartedRef.current) {
+            hasAutoStartedRef.current = true;
+            handleStartCall();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleToggleMic = () => {
         const tracks = mediaRef.current?.getAudioTracks() || [];
@@ -491,7 +447,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
         setMicOn(next);
         try {
             roomRef.current?.localParticipant.setMicrophoneEnabled(next);
-        } catch {}
+        } catch { }
     };
 
     const handleToggleCam = () => {
@@ -501,7 +457,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
         setCamOn(next);
         try {
             roomRef.current?.localParticipant.setCameraEnabled(next);
-        } catch {}
+        } catch { }
     };
 
     const handleToggleSpeaker = () => {
@@ -514,45 +470,20 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
             }
         } catch { }
     };
-
     const handleEndCall = () => {
-        try { wsRef.current?.close(); } catch { }
-        wsRef.current = null;
-        try { mediaRef.current?.getTracks().forEach((t) => t.stop()); } catch { }
-        mediaRef.current = null;
         try {
-            if (localVideoRef.current) {
-                localVideoRef.current.pause();
-                // @ts-ignore
-                localVideoRef.current.srcObject = null;
-            }
+            roomRef.current?.disconnect();
         } catch { }
-        setStarted(false);
-        setMicOn(true);
-        setCamOn(true);
-        setSpeakerOn(true);
-        setMessages([]);
-        setRemoteVideoActive(false);
+        onClose();
     };
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
             {/* Modal Container */}
             <div className="relative w-[95%] max-w-6xl gap-3 h-[80vh] flex  rounded-2xl overflow-hidden">
-                {/* Start Call Overlay (appears first) */}
-                {!started && (
-                    <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                        <button
-                            onClick={handleStartCall}
-                            className="px-6 py-3 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-dark)] font-semibold shadow-lg hover:bg-[var(--text-dark-hover)] border border-white/20"
-                        >
-                            Start Call
-                        </button>
-                    </div>
-                )}
                 {/* Close Button */}
                 <button
-                    onClick={onClose}
+                    onClick={handleEndCall}
                     className="absolute top-3 right-3 text-white font-bold text-xl hover:text-red-500 z-50"
                 >
                     ✕
@@ -561,7 +492,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                 {/* Left Section (Video Call) */}
                 <div className="flex-1 relative bg-black rounded-2xl flex items-center justify-center">
                     {roomRef.current ? (
-                        <LiveKitRoom room={roomRef.current}>
+                        <LiveKitRoom room={roomRef.current} serverUrl="" token="" connect={true}>
                             <LiveKitAVLayer />
                         </LiveKitRoom>
                     ) : (
@@ -576,7 +507,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                                 />
                             ) : (
                                 <img
-                                    src="./ai-20.png"
+                                    src="./placeholder.png"
                                     alt="Main Participant"
                                     className="w-full h-full object-cover"
                                 />
@@ -594,7 +525,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                                     />
                                 ) : (
                                     <img
-                                        src="./Rectangle 34.png"
+                                        src="./placeholder.png"
                                         alt="Small Participant"
                                         className="w-full h-full object-cover"
                                     />
@@ -622,7 +553,7 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                         </button> */}
                     </div>
                     {/* Hidden audio element for remote audio */}
-                    <audio ref={remoteAudioRef} hidden />
+                    <audio ref={remoteAudioRef} />
                 </div>
 
                 {/* Right Section (Transcript) */}
@@ -640,15 +571,17 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
                                     <div key={m.id} className="flex flex-col items-end gap-1">
                                         <p className="text-xs text-white pr-8">You</p>
                                         <div className="flex items-start gap-2">
-                                            <p className="bg-white text-[var(--color-primary-dark)] px-3 py-2 rounded-lg">{m.text}</p>
-                                            <img src="./Rectangle 34.png" alt="You" className="w-6 h-6 rounded-full" />
+                                            <p className="bg-white text-[var(--color-primary-dark)] px-3 py-2 rounded-lg">
+                                                {m.text}
+                                                </p>
+                                            <img src="./placeholder.png" alt="You" className="w-6 h-6 rounded-full" />
                                         </div>
                                     </div>
                                 ) : (
                                     <div key={m.id} className="flex flex-col items-start gap-1">
                                         <p className="text-xs text-white pl-8">Avatar Rafik</p>
                                         <div className="flex items-start gap-2">
-                                            <img src="./ai-20.png" alt="Rafik" className="w-6 h-6 rounded-full" />
+                                            <img src="./placeholder.png" alt="Rafik" className="w-6 h-6 rounded-full" />
                                             <p className="bg-[var(--color-primary)] text-[var(--color-primary-dark)] px-3 py-2 rounded-lg">{m.text}</p>
                                         </div>
                                     </div>
@@ -664,5 +597,3 @@ const MaleModal: React.FC<MaleModalProps> = ({ onClose }) => {
 };
 
 export default MaleModal;
-
-

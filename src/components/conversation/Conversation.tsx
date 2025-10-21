@@ -119,7 +119,7 @@ const Conversation: React.FC = () => {
               } chat-box`}
           >
             <img
-              src={msg.sender === "user" ? "/Rectangle 34.png" : "/ai-20.png"}
+              src={msg.sender === "user" ? "/placeholder.png" : "/placeholder.png"}
               alt={msg.sender}
               className="w-8 h-8 rounded-full object-cover"
             />

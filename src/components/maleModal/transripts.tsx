@@ -7,7 +7,6 @@ interface ChatEntryProps {
   messageOrigin: 'local' | 'remote';
   hasBeenEdited: boolean;
 }
-
 export const ChatEntry = React.forwardRef<HTMLDivElement, ChatEntryProps>(
   ({ locale, timestamp, message, messageOrigin, hasBeenEdited, ...props }, ref) => {
     const isUser = messageOrigin === 'local';

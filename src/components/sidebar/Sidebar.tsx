@@ -126,7 +126,7 @@ const Sidebar: React.FC = () => {
           className="flex items-center justify-between w-full px-3 py-2 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-dark)] font-medium"
         >
           <div className="flex items-center gap-2">
-            <img src="/elli.png" alt="User Avatar" className="w-8 h-8" />
+            <img src="/placeholder.png" alt="User Avatar" className="w-8 h-8" />
             <span className="user-name">{displayName}</span>
           </div>
           <FontAwesomeIcon className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} icon={open ? faChevronUp : faChevronDown} />

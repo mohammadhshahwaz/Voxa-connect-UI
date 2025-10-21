@@ -10,6 +10,7 @@ const CallDemoOptions = () => {
   const selectedAvatar = location.state?.selectedAvatar || "male"
   const isFemale = selectedAvatar === "female"
 
+  
   return (
     <div className="w-full min-h-screen bg-[var(--color-bg-light-sec)] text-[var(--color-neutral-dark)]">
       {/* Banner Section */}
@@ -63,7 +64,7 @@ const CallDemoOptions = () => {
         (isFemale ? (
           <FemaleModal onClose={() => setIsModalOpen(false)} />
         ) : (
-          <MaleModal onClose={() => setIsModalOpen(false)} />
+          <MaleModal onClose={() => setIsModalOpen(false)}  />
         ))}
     </div>
   )
