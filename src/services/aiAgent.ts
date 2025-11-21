@@ -101,7 +101,7 @@ export async function getGenerateToken(
   data: GenerateToken
 ): Promise<GenerateToken | null> {
   try {
-    const base = "http://98.90.206.21:8003";
+    const base = "https://api.performedge.ai";
     const params = new URLSearchParams();
 
     if (data?.name) params.set("name", data.name);

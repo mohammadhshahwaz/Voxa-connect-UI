@@ -1,6 +1,6 @@
 // Centralized auth API client using fetch with timeout and robust error handling
 
-const DEFAULT_BASE_URL = "http://98.90.206.21:8003";
+const DEFAULT_BASE_URL = "https://api.performedge.ai";
 
 function getBaseUrl(): string {
   // Support both CRA and Vite style env variables, with sensible fallback

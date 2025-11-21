@@ -51,7 +51,7 @@ const KnowledgeBase = () => {
                     <div className="content-section-kn">
                         <h2 className='content-section-heading'>Enhance AI with Your Documents</h2>
                         <p className='content-section-para'>
-                            Upload PDFs, Word files, or text docs to expand Voxa Connect’s knowledge.
+                            Upload PDFs, Word files, or text docs to expand Q Connect’s knowledge.
                             Your AI learns instantly and answers with greater accuracy.
                         </p>
                         <div className="btn-4">

@@ -1,7 +1,7 @@
 export const config = {
-    wsUrl: "ws://98.90.206.21:8003/api/v1/chat_stream",
-    livekitapiKey: "APILNAYM65eZC68",
-    livekitapiSecret:	"64zRn576DOAtqW0SFt8fFAwfaSrekd8rX5uCq7FwchGA",
-    livekitwsUrl: 	"ws://livekit.learnwood.org:7880",
+    wsUrl: "wss://api.performedge.ai/api/v1/chat_stream",
+    livekitapiKey: "APIiYVDEygBqaCX",
+    livekitapiSecret:	"bwxpj9MNXGfZCYYNeYQf6LKpj0xLDf0YpUKMPrfIZySF",
+    livekitwsUrl: 	"wss://livekit.performedge.ai",
     stream_idle_ms:"10000",
 };

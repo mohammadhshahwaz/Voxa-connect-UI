@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "http://98.90.206.21:8003";
+const DEFAULT_BASE_URL = "https://api.performedge.ai";
 
 function getBaseUrl(): string {
   const viteUrl = (import.meta as any)?.env?.VITE_API_BASE_URL;

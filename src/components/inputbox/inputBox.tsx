@@ -137,6 +137,8 @@ const InputBox: React.FC<InputBoxProps> = ({ onMessageSent }) => {
             },
           },
         };
+    //      console.log("📤 Sending message with user_id:", userIdRef.current);
+    // console.log("Full payload:", payload);
         ws.send(JSON.stringify(payload));
       } catch (e) {
         console.error("WS send error:", e);
