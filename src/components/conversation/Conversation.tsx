@@ -90,7 +90,7 @@ const Conversation: React.FC = () => {
       );
 
       // FINAL LOG IN ONE PLACE
-      console.log("🔥 Final AI Response (combined):", finalBuffer);
+      // console.log("🔥 Final AI Respon se (combined):", finalBuffer);
 
       return;
     }

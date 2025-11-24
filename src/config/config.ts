@@ -3,5 +3,5 @@ export const config = {
     livekitapiKey: "APIiYVDEygBqaCX",
     livekitapiSecret:	"bwxpj9MNXGfZCYYNeYQf6LKpj0xLDf0YpUKMPrfIZySF",
     livekitwsUrl: 	"wss://livekit.performedge.ai",
-    stream_idle_ms:"10000",
+    stream_idle_ms:"2000",
 };
